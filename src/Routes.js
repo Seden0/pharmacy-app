@@ -8,9 +8,9 @@ import ProductForm from './pages/Products/ProductForm';
 
 const Routes = () => (
     <Switch>
-        <Route exact patch="/" component={Login} />
-        <Route exact patch="/login" component={Login} />
-        <Route exact patch="/signup" component={SignUp} />
+        <Route exact path="/" component={Login} />
+        <Route exact path="/login" component={Login} />
+        <Route exact path="/signup" component={SignUp} />
         <Route exact path="/productos" component ={Products}/>
         <Route exact path="/productos/agregar" component ={ProductForm}/>
         <Route exact path="/productos/editar" component ={ProductForm}/>
