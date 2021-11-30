@@ -62,7 +62,7 @@ const Products = () => {
         >
             <Grid container spacing={3}>
                 <Grid item xs={10}>
-                  <h3 sx={{ m: 0 }}> Productos</h3>  
+                  <h3 sx={{ m: 0 }}> Catálogo de Productos</h3>  
                 </Grid>
                 <Grid item xs={2}>
                 <Button variant="outlined" LinkComponent={Link} to="/productos/agregar" startIcon={<AddOutlinedIcon />}>
