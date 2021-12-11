@@ -1,50 +1,51 @@
-import { BrowserRouter as Router } from 'react-router-dom';
-import React from 'react'
+import { BrowserRouter as Router } from "react-router-dom";
+import React, { useState } from "react";
+import Layout from "./components/Layout";
+import Routes from "./Routes";
 // import CssBaseline from '@mui/material/CssBaseline';
-// import Header from './components/layout/Header';
-// import Index from './components/layout/index';
-// import Products from './pages/Products';
-// import User from './components/User';
-import Layout from './components/layout';
-import Routes from './Routes';
-// import CssBaseline from '@mui/material/CssBaseline';
-// import User from './components/User';
+import User from "./components/User";
 // import {loadUser} from './utils/dbUtils';
-// import {getAuth} from "firebase/auth";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import firebaseApp from "./config/firebaseConfig";
+import { ref, set } from "firebase/database";
 // import { createTheme, ThemeProvider } from '@mui/material/styles';
 // import { blue, pink } from '@mui/material/colors';
-
+import Login from "./components/Login";
 // const theme = createTheme({
 //   palette: {
-//     primary:{main: blue[700]},   
-//   }, 
+//     primary:{main: blue[700]},
+//   },
 //   secondary:pink,
 // });
 
-function App(){
+function App() {
+  const auth = getAuth();
 
-// const auth = getAuth();
+  const [user, setUser] = useState(null);
 
-// const [user, setUser] = useState(null);
+  onAuthStateChanged(auth, (usuarioFirebase) => {
+    if (usuarioFirebase) {
+      setUser(usuarioFirebase);
+    } else {
+      setUser(null);
+    }
+  });
+  // const onLogout = () =>{
+  //   setUser(null);
+  // };
 
-// const onLogout = () =>{
-//   setUser(null);
-// };
-
-// useEffect(()=>{
-//  auth.onAuthStateChanged (response => {
-//     if (response) {
-//       loadUser(response.uid)
-//       .then(data =>{setUser(data);});
-//     }
-//   });
-// },[]);
-
+  // useEffect(()=>{
+  //  auth.onAuthStateChanged (response => {
+  //     if (response) {
+  //       loadUser(response.uid)
+  //       .then(data =>{setUser(data);});
+  //     }
+  //   });
+  // },[]);
+  //<>{user ? <cliente/> : <Login/>}</>;
   return (
     <Router>
-      <Layout>
-        <Routes />
-      </Layout>
+      <Routes />
     </Router>
   );
 }
