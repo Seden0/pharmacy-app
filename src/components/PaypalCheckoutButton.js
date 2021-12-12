@@ -7,7 +7,8 @@ const PaypalCheckoutButton = ({ order }) => {
     currency: "MXN",
     env: "sandbox",
     client: {
-      sandbox: "AQ4XW5KftrcIKShTFb5StNtlojdKRrVdVy7jTR8fx71--P0",
+      sandbox:
+        "Af2cbyb-kZKx7uRXHnCCjf0UgPyPI8-HkAE7hvIaywAY1werBmIdaCfNzq6j8hrf3eGiCrDGFBJPsQS1",
       production: "--"
     },
     style: {
