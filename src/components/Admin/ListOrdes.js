@@ -1,134 +1,252 @@
-import * as React from "react";
-import PropTypes from "prop-types";
-import Typography from "@mui/material/Typography";
-import Box from "@mui/material/Box";
-import { styled } from "@mui/material/styles";
-import { database, storage } from "../../config/firebaseConfig";
+import React from "react";
+import Paper from "@mui/material/Paper";
+import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
-import {
-  GridColumnMenu,
-  GridColumnMenuContainer,
-  GridFilterMenuItem,
-  SortGridMenuItems,
-  useGridApiRef,
-  DataGridPro
-} from "@mui/x-data-grid-pro";
-import StarOutlineIcon from "@mui/icons-material/StarOutline";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { Link } from "react-router-dom";
+import { DataGrid } from "@mui/x-data-grid";
+import { onValue, ref, remove } from "@firebase/database";
+import { database } from "../../config/firebaseConfig";
+import { useState, useEffect } from "react";
+import IconButton from "@mui/material/IconButton";
+//
+import { styled, createTheme, ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import MuiDrawer from "@mui/material/Drawer";
+import Box from "@mui/material/Box";
+import MuiAppBar from "@mui/material/AppBar";
+import Toolbar from "@mui/material/Toolbar";
+import List from "@mui/material/List";
+import Typography from "@mui/material/Typography";
+import Divider from "@mui/material/Divider";
+import Badge from "@mui/material/Badge";
+import Container from "@mui/material/Container";
+import MenuIcon from "@mui/icons-material/Menu";
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import { menuItems } from "./menu2";
+//
+const drawerWidth = 240;
 
-const StyledGridColumnMenuContainer = styled(GridColumnMenuContainer)(
-  ({ theme, ownerState }) => ({
-    background: theme.palette[ownerState.color].main,
-    color: theme.palette[ownerState.color].contrastText
+const AppBar = styled(MuiAppBar, {
+  shouldForwardProp: (prop) => prop !== "open"
+})(({ theme, open }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  transition: theme.transitions.create(["width", "margin"], {
+    easing: theme.transitions.easing.sharp,
+    duration: theme.transitions.duration.leavingScreen
+  }),
+  ...(open && {
+    marginLeft: drawerWidth,
+    width: `calc(100% - ${drawerWidth}px)`,
+    transition: theme.transitions.create(["width", "margin"], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen
+    })
   })
-);
+}));
 
-const StyledGridColumnMenu = styled(GridColumnMenu)(
-  ({ theme, ownerState }) => ({
-    background: theme.palette[ownerState.color].main,
-    color: theme.palette[ownerState.color].contrastText
-  })
-);
-
-function CustomColumnMenuComponent(props) {
-  const { hideMenu, currentColumn, color, ...other } = props;
-
-  if (currentColumn.field === "ID") {
-    return (
-      <StyledGridColumnMenuContainer
-        hideMenu={hideMenu}
-        currentColumn={currentColumn}
-        ownerState={{ color }}
-        {...other}
-      >
-        <SortGridMenuItems onClick={hideMenu} column={currentColumn} />
-        <GridFilterMenuItem onClick={hideMenu} column={currentColumn} />
-      </StyledGridColumnMenuContainer>
-    );
+const Drawer = styled(MuiDrawer, {
+  shouldForwardProp: (prop) => prop !== "open"
+})(({ theme, open }) => ({
+  "& .MuiDrawer-paper": {
+    position: "relative",
+    whiteSpace: "nowrap",
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen
+    }),
+    boxSizing: "border-box",
+    ...(!open && {
+      overflowX: "hidden",
+      transition: theme.transitions.create("width", {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.leavingScreen
+      }),
+      width: theme.spacing(7),
+      [theme.breakpoints.up("sm")]: {
+        width: theme.spacing(9)
+      }
+    })
   }
-  if (currentColumn.field === "Total") {
-    return (
-      <StyledGridColumnMenuContainer
-        hideMenu={hideMenu}
-        currentColumn={currentColumn}
-        ownerState={{ color }}
-        {...other}
-      >
-        <Box
-          sx={{
-            width: 127,
-            height: 160,
-            display: "flex",
-            justifyContent: "center",
-            flexDirection: "column",
-            alignItems: "center"
-          }}
-        >
-          <StarOutlineIcon sx={{ fontSize: 80 }} />
-        </Box>
-      </StyledGridColumnMenuContainer>
-    );
-  }
-  return (
-    <StyledGridColumnMenu
-      hideMenu={hideMenu}
-      currentColumn={currentColumn}
-      ownerState={{ color }}
-      {...other}
-    />
-  );
-}
+}));
 
-CustomColumnMenuComponent.propTypes = {
-  color: PropTypes.string.isRequired,
-  currentColumn: PropTypes.object.isRequired,
-  hideMenu: PropTypes.func.isRequired
+const mdTheme = createTheme();
+
+//
+const deleteOrder = (id) => {
+  remove(ref(database, `/orders/${id}`)).then(() => {
+    alert("orden eliminada");
+  });
 };
 
-export { CustomColumnMenuComponent };
+const columns = [
+  {
+    field: "id",
+    headerName: "Id",
+    width: 220
+  },
+  {
+    field: "description",
+    headerName: "Descripcion",
+    width: 220
+  },
+  {
+    field: "total",
+    headerName: "Total",
+    width: 220
+  },
+  {
+    field: "id",
+    headerName: "opciones",
+    with: 150,
+    renderCell: (data) => (
+      <IconButton
+        onClick={() => {
+          deleteOrder(data.row.id);
+        }}
+        color="primary"
+        aria-label="Eliminar"
+        component="span"
+      >
+        <DeleteIcon />
+      </IconButton>
+    )
+  }
+];
 
-export default function CustomColumnMenu() {
-  const [color, setColor] = React.useState("primary");
-  const apiRef = useGridApiRef();
+const Order = (props) => {
+  const [open, setOpen] = React.useState(true);
+  const toggleDrawer = () => {
+    setOpen(!open);
+  };
+
+  const [orders, setOrders] = useState([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    onValue(
+      ref(database, "orders/"),
+      (snapshot) => {
+        const ordersList = [];
+
+        snapshot.forEach((item) => {
+          const orderItem = {
+            id: item.key,
+            ...item.val()
+          };
+          ordersList.push(orderItem);
+        });
+        setOrders(ordersList);
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   return (
-    <div
-      style={{
-        width: "100%"
-      }}
-    >
-      <Typography>
-        <h1 sx={{ textAling: "center" }}>Lista de Pedidos</h1>
-      </Typography>
-      <div style={{ height: 250, width: "100%", marginTop: 16 }}>
-        <DataGridPro
-          apiRef={apiRef}
-          columns={[
-            { field: "ID", width: 150 },
-            { field: "Pedido", width: 150 },
-            { field: "Total", width: 150 }
-          ]}
-          rows={[
-            {
-              id: 1,
-              ID: "23r3d",
-              Total: 280,
-              Pedido: "Pomada de la Campana"
-            },
-            {
-              id: 2,
-              ID: "453r4",
-              Total: 782,
-              Pedido: "Pastillas Next, Pañales Huggies"
-            }
-          ]}
-          components={{
-            ColumnMenu: CustomColumnMenuComponent
+    <ThemeProvider theme={mdTheme}>
+      <Box sx={{ display: "flex" }}>
+        <CssBaseline />
+        <AppBar position="absolute" open={open}>
+          <Toolbar
+            sx={{
+              pr: "24px" // keep right padding when drawer closed
+            }}
+          >
+            <IconButton
+              edge="start"
+              color="inherit"
+              aria-label="open drawer"
+              onClick={toggleDrawer}
+              sx={{
+                marginRight: "36px",
+                ...(open && { display: "none" })
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              noWrap
+              sx={{ flexGrow: 1 }}
+            >
+              Pharmacy Orders
+            </Typography>
+            <IconButton color="inherit">
+              <Badge badgeContent={4} color="secondary">
+                <NotificationsIcon />
+              </Badge>
+            </IconButton>
+          </Toolbar>
+        </AppBar>
+        <Drawer variant="permanent" open={open}>
+          <Toolbar
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "flex-end",
+              px: [1]
+            }}
+          >
+            <IconButton onClick={toggleDrawer}>
+              <ChevronLeftIcon />
+            </IconButton>
+          </Toolbar>
+          <Divider />
+          <List>{menuItems}</List>
+        </Drawer>
+        <Box
+          component="main"
+          sx={{
+            backgroundColor: (theme) =>
+              theme.palette.mode === "light"
+                ? theme.palette.grey[100]
+                : theme.palette.grey[900],
+            flexGrow: 1,
+            height: "100vh",
+            overflow: "auto"
           }}
-          componentsProps={{
-            columnMenu: { color }
-          }}
-        />
-      </div>
-    </div>
+        >
+          <Toolbar />
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            {props.children}
+            <Paper
+              sax={{
+                p: 3
+              }}
+            >
+              <Grid container spacing={3}>
+                <Grid item xs={10}>
+                  <h3 sx={{ n: 0 }}>Ordenes</h3>
+                </Grid>
+
+                <Grid item xs={12}>
+                  <div style={{ height: 400, width: "100%" }}>
+                    <DataGrid
+                      rows={orders}
+                      columns={columns}
+                      pageSize={5}
+                      rowsPerPageOptions={[5]}
+                    />
+                  </div>
+                </Grid>
+              </Grid>
+            </Paper>
+          </Container>
+        </Box>
+      </Box>
+    </ThemeProvider>
   );
-}
+};
+
+export default Order;
