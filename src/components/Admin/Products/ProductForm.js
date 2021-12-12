@@ -10,7 +10,7 @@ import { ref as stRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { withRouter, useLocation } from "react-router-dom";
 import { Input } from "@mui/material";
 
-const ProductForm = (props) => {
+const ProductForma = (props) => {
   const location = useLocation();
 
   const [product, setProduct] = useState({
@@ -46,7 +46,7 @@ const ProductForm = (props) => {
       delete data.id;
       update(ref(database, `/products/${item.id}`), data)
         .then(() => {
-          props.history.push("/productos");
+          props.history.push("/agregar");
         })
         .catch((error) => {
           console.log(error);
@@ -54,7 +54,7 @@ const ProductForm = (props) => {
     } else {
       push(ref(database, "/products"), item)
         .then(() => {
-          props.history.push("/productos");
+          props.history.push("/agregar");
         })
         .catch((error) => {
           console.log(error);
@@ -207,4 +207,4 @@ const ProductForm = (props) => {
     </Paper>
   );
 };
-export default withRouter(ProductForm);
+export default withRouter(ProductForma);

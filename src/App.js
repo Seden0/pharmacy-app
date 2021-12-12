@@ -1,6 +1,5 @@
 import { BrowserRouter as Router } from "react-router-dom";
 import React, { useState } from "react";
-import Layout from "./components/Layout";
 import Routes from "./Routes";
 // import CssBaseline from '@mui/material/CssBaseline';
 import User from "./components/User";

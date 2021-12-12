@@ -12,10 +12,10 @@ import VpnKeyOutlinedIcon from "@mui/icons-material/VpnKeyOutlined";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Link as RouterLink } from "react-router-dom";
-// import Alert from './Alert';
-// import {ref, set} from "firebase/database";
-// import database from '../config/firebaseConfig';
+import { Link as RouterLink, withRouter } from "react-router-dom";
+import Alert from "./Alert";
+import { ref, set } from "firebase/database";
+import { database } from "../config/firebaseConfig";
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 const MyLink = React.forwardRef((props, ref) => (
@@ -29,10 +29,10 @@ const SignUp = (props) => {
   const [user, setUser] = useState({
     name: "",
     email: "",
-    password: "",
-    avatar: ""
+    password: ""
   });
 
+  const [alertMessage, setAlertMessage] = useState(null);
   const handleChange = (e) => {
     setUser({
       ...user,
@@ -42,13 +42,28 @@ const SignUp = (props) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    createUserWithEmailAndPassword(
-      auth,
-      user.email,
-      user.password
-    ).then((res) => alert("usuario registrado"));
-    props.history.push("/cliente");
+    createUserWithEmailAndPassword(auth, user.email, user.password)
+      .then((response) => {
+        // guardar los datos del usuario
+        delete user.password;
+        set(ref(database, `users/${response.user.uid}`), user);
+        //alert('Registro exitoso, Bienvenido a nuestra Barberia..!!');
+        setAlertMessage({
+          type: "success",
+          message: "Registro exitoso, Bienvenido"
+        });
+        props.history.push("/cliente");
+      })
+      .catch((error) => {
+        console.log(error);
+        //alert(error.message);
+        setAlertMessage({
+          type: "error",
+          message: error.message
+        });
+      });
   };
+
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -125,26 +140,7 @@ const SignUp = (props) => {
                   onChange={handleChange}
                 />
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  variant="outlined"
-                  id="avatar"
-                  label="Url de avatar"
-                  name="avatar"
-                  value={user.avatar}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox value="allowExtraEmails" color="primary" />
-                  }
-                  label="Al registrarse, acepta nuestros términos y condiciones."
-                />
-              </Grid>
+              <Grid item xs={12}></Grid>
             </Grid>
             <Button
               type="submit"
@@ -163,14 +159,15 @@ const SignUp = (props) => {
             </Grid>
           </Box>
         </Box>
-        {/* {alertMessage &&
-        <Alert 
-        type={alertMessage.type} 
-        message={alertMessage.message} 
-        autoclose={5000}
-        />} */}
+        {alertMessage && (
+          <Alert
+            type={alertMessage.type}
+            message={alertMessage.message}
+            autoclose={5000}
+          />
+        )}
       </Container>
     </ThemeProvider>
   );
 };
-export default SignUp;
+export default withRouter(SignUp);

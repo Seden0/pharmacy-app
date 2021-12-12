@@ -3,17 +3,12 @@ import Paper from "@mui/material/Paper";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
-import Link from "@mui/material/Link";
-import { Link as RouterLink } from "react-router-dom";
+import { Link, withRouter } from "react-router-dom";
 import { onValue, ref, remove } from "@firebase/database";
 import { database } from "../../../config/firebaseConfig";
 import ProductCard from "./ProductCard";
 
-const MyLink = React.forwardRef((props, ref) => (
-  <RouterLink innerRef={ref} {...props} />
-));
-
-const Products = () => {
+const ProductsA = () => {
   const [products, setProducts] = useState([]);
   const handleDelete = (id) => {
     console.log(id);
@@ -66,7 +61,7 @@ const Products = () => {
         <Grid item xs={2}>
           <Button
             variant="outlined"
-            LinkComponent={MyLink}
+            LinkComponent={Link}
             to="/productos/agregar"
             startIcon={<AddIcon />}
           >
@@ -81,4 +76,4 @@ const Products = () => {
   );
 };
 
-export default Products;
+export default withRouter(ProductsA);

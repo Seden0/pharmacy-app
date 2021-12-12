@@ -151,7 +151,7 @@ const Products = (props) => {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              App name
+              Pharmacy Orders
             </Typography>
             <IconButton color="inherit">
               <Badge badgeContent={4} color="secondary">

@@ -15,13 +15,13 @@ const Routes = () => (
     <Route exact path="/" component={Login} />
     <Route exact path="/login" component={Login} />
     <Route exact path="/signup" component={SignUp} />
+    <Route exat path="/agregar" component={Products} />
     <Route exact path="/productos/agregar" component={ProductForm} />
     <Route exact path="/productos/editar" component={ProductForm} />
     <Route exat path="/order" component={orders} />
     <Route exat path="/listaOrdenes" component={lista} />
     <Route exat path="/cliente" component={ProductsC} />
     <Route exat path="/admin" component={Admin} />
-    <Route exat path="/ProducstA" component={Products} />
   </Switch>
 );
 export default Routes;
